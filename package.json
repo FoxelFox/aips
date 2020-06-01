@@ -1,0 +1,37 @@
+{
+  "name": "aips",
+  "version": "0.0.1",
+  "description": "AI Physics Sandbox",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack-dev-server --config webpack.config.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FoxelFox/aips.git"
+  },
+  "keywords": [
+    "ai"
+  ],
+  "author": "André Furchner",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/FoxelFox/aips/issues"
+  },
+  "homepage": "https://github.com/FoxelFox/aips#readme",
+  "devDependencies": {
+    "@enable3d/ammo-physics": "^0.18.0",
+    "@types/three": "^0.103.2",
+    "@types/webpack": "^4.41.16",
+    "copy-webpack-plugin": "^6.0.1",
+    "html-webpack-plugin": "^4.3.0",
+    "three": "^0.117.1",
+    "ts-loader": "^7.0.5",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.3",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.11.0"
+  }
+}
