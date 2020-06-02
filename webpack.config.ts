@@ -13,9 +13,14 @@ const config: webpack.Configuration & {devServer} = {
 		extensions: [".tsx", ".ts", ".js"]
 	},
 	module: {
-		rules: [
-			{ test: /\.tsx?$/, loader: 'ts-loader', exclude: /node_modules/, options: { transpileOnly: true }}
-		]
+		rules: [{
+			test: /\.tsx?$/,
+			loader: 'ts-loader',
+			exclude: /node_modules/,
+			options: {
+				transpileOnly: true
+			}
+		}]
 	},
 	devServer: {
 		contentBase: path.join(__dirname, 'dist'),

@@ -3,7 +3,6 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { Scene, Color, PerspectiveCamera, WebGLRenderer, HemisphereLight, AmbientLight, DirectionalLight, BoxBufferGeometry, MeshLambertMaterial, Mesh, SphereBufferGeometry, Clock } from "three";
 console.log('hello world')
 const MainScene = () => {
-	// scene
 	const scene = new Scene()
 	scene.background = new Color(0xf0f0f0)
 
@@ -33,73 +32,128 @@ const MainScene = () => {
 	// physics
 	const physics = new AmmoPhysics(scene)
 	physics.debug.enable()
+	physics.debug.mode(4097)
 
 	// extract the object factory from physics
 	// the factory will make/add object without physics
 	const { factory } = physics
 
-	// blue box
-	physics.add.box({ x: 0.05, y: 10 }, { lambert: { color: 0x2194ce } })
-
 	// static ground
-	physics.add.ground({ width: 20, height: 20 })
+	physics.add.ground({ width: 20, height: 20 }, {basic: {color: '#566573'}})
 
-	// add a normal sphere using the object factory
-	// (NOTE: This will be factory.add.sphere() in the future)
-	// first parameter is the config for the geometry
-	// second parameter is for the material
-	// you could also add a custom material like so { custom: new THREE.MeshLambertMaterial({ color: 0x00ff00 }) }
-	let greenSphere = factory.make.sphere({ y: 2, z: 5 }, { lambert: { color: 0x00ff00 } })
-	// once the object is created, you can add physics to it
-	physics.add.existing(greenSphere)
 
-	// green sphere
-	const geometry = new BoxBufferGeometry()
-	const material = new MeshLambertMaterial({ color: 0x00ff00 })
+	const torso = factory.add.box({width: 1, height: 2, depth: 0.5, y: 4}, {basic: {color: '#BF8069'}})
 
-	// @ts-ignore
-	const cube: Mesh & ExtendedObject3D = new Mesh(geometry, material)
-	cube.position.set(0, 5, 0)
-	scene.add(cube)
-	physics.add.existing(cube)
-	cube.body.setCollisionFlags(2) // make it kinematic
+	const leftUpperLeg = factory.add.box({width: 0.25, height: 1, depth: 0.25, x: -0.25, y: 2.5}, {basic: {color: '#D9933D'}})
+	const leftLowerLeg = factory.add.box({width: 0.25, height: 1, depth: 0.25, x: -0.25, y: 1.5}, {basic: {color: '#D99E32'}})
 
-	// merge children to compound shape
-	const exclamationMark = () => {
-		const material = new MeshLambertMaterial({ color: 0xffff00 })
+	const rightUpperLeg = factory.add.box({width: 0.25, height: 1, depth: 0.25, x: 0.25, y: 2.5}, {basic: {color: '#D9933D'}})
+	const rightLowerLeg = factory.add.box({width: 0.25, height: 1, depth: 0.25, x: 0.25, y: 1.5}, {basic: {color: '#D99E32'}})
 
-		const sphere = new Mesh(new SphereBufferGeometry(0.25), material)
-		sphere.position.set(0, -0.8, 0)
+	physics.add.existing(torso);
+	physics.add.existing(leftUpperLeg);
+	physics.add.existing(leftLowerLeg);
+	physics.add.existing(rightUpperLeg);
+	physics.add.existing(rightLowerLeg);
 
-		// @ts-ignore
-		const cube: Mesh & ExtendedObject3D = new Mesh(new BoxBufferGeometry(0.4, 0.8, 0.4), material)
-		cube.position.set(5, 2, 5)
+	const hinges = [];
 
-		cube.add(sphere)
-		scene.add(cube)
+	hinges.push(physics.add.constraints.hinge(
+		torso.body,
+		leftUpperLeg.body, {
+			pivotA: {
+				x: -0.25,
+				y: -1.1
+			},
+			pivotB: {
+				x: 0.0,
+				y: 0.6
+			},
+			axisA: {
+				x: 1
+			},
+			axisB: {
+				x: 1
+			}
+		}
+	));
 
-		cube.position.set(5, 5, 5)
-		cube.rotation.set(0, 0.4, 0.2)
+	hinges.push(physics.add.constraints.hinge(
+		leftUpperLeg.body,
+		leftLowerLeg.body, {
+			pivotA: {
+				y: -0.6
+			},
+			pivotB: {
+				y: 0.6
+			},
+			axisA: {
+				x: 1
+			},
+			axisB: {
+				x: 1
+			}
+		}
+	));
 
-		physics.add.existing(cube)
-	}
-	exclamationMark()
+	hinges.push(physics.add.constraints.hinge(
+		torso.body,
+		rightUpperLeg.body, {
+			pivotA: {
+				x: 0.25,
+				y: -1.1
+			},
+			pivotB: {
+				x: 0.0,
+				y: 0.6
+			},
+			axisA: {
+				x: 1
+			},
+			axisB: {
+				x: 1
+			}
+		}
+	));
 
-	// clock
+	hinges.push(physics.add.constraints.hinge(
+		rightUpperLeg.body,
+		rightLowerLeg.body, {
+			pivotA: {
+				y: -0.6
+			},
+			pivotB: {
+				y: 0.6
+			},
+			axisA: {
+				x: 1
+			},
+			axisB: {
+				x: 1
+			}
+		}
+	));
+
+
+
+
+
+
+
+
 	const clock = new Clock()
 
-	// loop
 	const animate = () => {
-		cube.rotation.x += 0.01
-		cube.rotation.y += 0.01
-		cube.body.needUpdate = true // this is how you update kinematic bodies
-
 		physics.update(clock.getDelta() * 1000)
 		physics.updateDebugger()
 		renderer.render(scene, camera)
+
+		//hinges[0].enableAngularMotor(true, 5, 5)
+
+
 
 		requestAnimationFrame(animate)
 	}
 	requestAnimationFrame(animate)
 }
-PhysicsLoader('/lib', () => MainScene())
+PhysicsLoader('lib', () => MainScene())
