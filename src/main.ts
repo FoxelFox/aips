@@ -1,7 +1,9 @@
 import {AmmoPhysics, ExtendedObject3D, PhysicsLoader} from "@enable3d/ammo-physics/dist";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { Scene, Color, PerspectiveCamera, WebGLRenderer, HemisphereLight, AmbientLight, DirectionalLight, BoxBufferGeometry, MeshLambertMaterial, Mesh, SphereBufferGeometry, Clock } from "three";
+import {Ai} from "./ai";
 console.log('hello world')
+
 const MainScene = () => {
 	const scene = new Scene()
 	scene.background = new Color(0xf0f0f0)
@@ -134,12 +136,7 @@ const MainScene = () => {
 		}
 	));
 
-
-
-
-
-
-
+	const ai = new Ai(new Array(hinges.length), new Array(hinges.length));
 
 	const clock = new Clock()
 
@@ -148,8 +145,24 @@ const MainScene = () => {
 		physics.updateDebugger()
 		renderer.render(scene, camera)
 
+		ai.input[0] = leftUpperLeg.rotation.x;
+		ai.input[1] = rightUpperLeg.rotation.x;
+		ai.input[2] = rightLowerLeg.rotation.x;
+		ai.input[3] = leftLowerLeg.rotation.x;
+
 		//hinges[0].enableAngularMotor(true, 5, 5)
 
+		ai.update();
+
+		let i = 0;
+		for (const hinge of hinges) {
+			hinge.enableAngularMotor(true, ai.output[i], 5)
+			i++;
+		}
+
+
+
+		console.log()
 
 
 		requestAnimationFrame(animate)
