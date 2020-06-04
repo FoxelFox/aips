@@ -93,7 +93,19 @@ export class Ai {
 		}
 	}
 
-	mutate() {
+	mutate(rate: number) {
+		let depth = 0;
+		for (const lvl of this.dna) {
+			// use input
+			for (const neuron of lvl) {
 
+				for (const neuronInput of neuron.inputs) {
+					if (Math.random() > rate) {
+						neuronInput.w = Math.random() * 10;
+					}
+				}
+			}
+			depth++;
+		}
 	}
 }

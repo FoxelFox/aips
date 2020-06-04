@@ -1,7 +1,9 @@
 import {AmmoPhysics, ExtendedObject3D, PhysicsLoader} from "@enable3d/ammo-physics/dist";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
-import { Scene, Color, PerspectiveCamera, WebGLRenderer, HemisphereLight, AmbientLight, DirectionalLight, BoxBufferGeometry, MeshLambertMaterial, Mesh, SphereBufferGeometry, Clock } from "three";
+import { Scene, Color, PerspectiveCamera, WebGLRenderer, HemisphereLight, AmbientLight, DirectionalLight, BoxBufferGeometry, MeshLambertMaterial, Mesh, SphereBufferGeometry, Clock, Vector3 } from "three";
 import {Ai} from "./ai";
+import {Population} from "./population";
+import {Creature} from "./creature";
 console.log('hello world')
 
 const MainScene = () => {
@@ -10,11 +12,13 @@ const MainScene = () => {
 
 	// camera
 	const camera = new PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
-	camera.position.set(10, 10, 20)
+	camera.position.set(10, 10, 10)
+
 
 	// renderer
 	const renderer = new WebGLRenderer()
 	renderer.setSize(window.innerWidth, window.innerHeight)
+	renderer.shadowMap.enabled = true;
 	document.body.appendChild(renderer.domElement)
 
 	// dpr
@@ -23,147 +27,89 @@ const MainScene = () => {
 
 	// orbit controls
 	const controls = new OrbitControls(camera, renderer.domElement)
+	controls.target = new Vector3(0, 3,0)
+	controls.update();
 
 	// light
-	scene.add(new HemisphereLight(0xffffbb, 0x080820, 1))
+	scene.add(new HemisphereLight(0xffffbb, 0x080820, 0.5))
+
+
 	scene.add(new AmbientLight(0x666666))
-	const light = new DirectionalLight(0xdfebff, 1)
+	const light = new DirectionalLight(0xdfebff, 0.5)
 	light.position.set(50, 200, 100)
 	light.position.multiplyScalar(1.3)
+	light.castShadow = true;
+	//light.shadow.bias = 0.00001
+
+
+	scene.add(light)
 
 	// physics
 	const physics = new AmmoPhysics(scene)
-	physics.debug.enable()
-	physics.debug.mode(4097)
+	// physics.debug.enable()
+	// physics.debug.mode(4097)
 
 	// extract the object factory from physics
 	// the factory will make/add object without physics
 	const { factory } = physics
 
 	// static ground
-	physics.add.ground({ width: 20, height: 20 }, {basic: {color: '#566573'}})
+	physics.add.ground({ width: 20, height: 20 }, {lambert: {color: '#566573'}})
 
 
-	const torso = factory.add.box({width: 1, height: 2, depth: 0.5, y: 4}, {basic: {color: '#BF8069'}})
+	const creature = new Creature(factory, physics, scene);
+	const population = new Population(10, creature.hinges.length, creature.hinges.length);
 
-	const leftUpperLeg = factory.add.box({width: 0.25, height: 1, depth: 0.25, x: -0.25, y: 2.5}, {basic: {color: '#D9933D'}})
-	const leftLowerLeg = factory.add.box({width: 0.25, height: 1, depth: 0.25, x: -0.25, y: 1.5}, {basic: {color: '#D99E32'}})
+	const clock = new Clock();
 
-	const rightUpperLeg = factory.add.box({width: 0.25, height: 1, depth: 0.25, x: 0.25, y: 2.5}, {basic: {color: '#D9933D'}})
-	const rightLowerLeg = factory.add.box({width: 0.25, height: 1, depth: 0.25, x: 0.25, y: 1.5}, {basic: {color: '#D99E32'}})
-
-	physics.add.existing(torso);
-	physics.add.existing(leftUpperLeg);
-	physics.add.existing(leftLowerLeg);
-	physics.add.existing(rightUpperLeg);
-	physics.add.existing(rightLowerLeg);
-
-	const hinges = [];
-
-	hinges.push(physics.add.constraints.hinge(
-		torso.body,
-		leftUpperLeg.body, {
-			pivotA: {
-				x: -0.25,
-				y: -1.1
-			},
-			pivotB: {
-				x: 0.0,
-				y: 0.6
-			},
-			axisA: {
-				x: 1
-			},
-			axisB: {
-				x: 1
-			}
-		}
-	));
-
-	hinges.push(physics.add.constraints.hinge(
-		leftUpperLeg.body,
-		leftLowerLeg.body, {
-			pivotA: {
-				y: -0.6
-			},
-			pivotB: {
-				y: 0.6
-			},
-			axisA: {
-				x: 1
-			},
-			axisB: {
-				x: 1
-			}
-		}
-	));
-
-	hinges.push(physics.add.constraints.hinge(
-		torso.body,
-		rightUpperLeg.body, {
-			pivotA: {
-				x: 0.25,
-				y: -1.1
-			},
-			pivotB: {
-				x: 0.0,
-				y: 0.6
-			},
-			axisA: {
-				x: 1
-			},
-			axisB: {
-				x: 1
-			}
-		}
-	));
-
-	hinges.push(physics.add.constraints.hinge(
-		rightUpperLeg.body,
-		rightLowerLeg.body, {
-			pivotA: {
-				y: -0.6
-			},
-			pivotB: {
-				y: 0.6
-			},
-			axisA: {
-				x: 1
-			},
-			axisB: {
-				x: 1
-			}
-		}
-	));
-
-	const ai = new Ai(new Array(hinges.length), new Array(hinges.length));
-
-	const clock = new Clock()
+	const deadline = 5000;
+	let currentCreatureTime = 0;
+	let currentSpecies = population.species[0];
+	let currentSpeciesIndex = 0;
 
 	const animate = () => {
-		physics.update(clock.getDelta() * 1000)
+
+		const delta = clock.getDelta() * 1000;
+		currentCreatureTime += delta;
+
+
+		physics.update(delta) // default
+		// physics.update(16) // fixed physic steps
 		physics.updateDebugger()
 		renderer.render(scene, camera)
 
-		ai.input[0] = leftUpperLeg.rotation.x;
-		ai.input[1] = rightUpperLeg.rotation.x;
-		ai.input[2] = rightLowerLeg.rotation.x;
-		ai.input[3] = leftLowerLeg.rotation.x;
+		// update net
+		currentSpecies.ai.input[0] = creature.leftUpperLeg.rotation.x;
+		currentSpecies.ai.input[1] = creature.rightUpperLeg.rotation.x;
+		currentSpecies.ai.input[2] = creature.rightLowerLeg.rotation.x;
+		currentSpecies.ai.input[3] = creature.leftLowerLeg.rotation.x;
 
-		//hinges[0].enableAngularMotor(true, 5, 5)
-
-		ai.update();
+		currentSpecies.ai.update();
 
 		let i = 0;
-		for (const hinge of hinges) {
-			hinge.enableAngularMotor(true, ai.output[i], 5)
+		for (const hinge of creature.hinges) {
+			hinge.enableAngularMotor(true, currentSpecies.ai.output[i], 1)
 			i++;
 		}
 
+		if (currentCreatureTime > deadline) {
+			// life is ended here
+			currentSpecies.reward = creature.torso.body.position.z;
 
 
-		console.log()
+			currentSpeciesIndex++;
 
+			if (currentSpeciesIndex >= population.species.length) {
+				currentSpeciesIndex = 0;
+				population.populate();
+				console.log(population.species[0].reward);
+			}
+
+			currentSpecies = population.species[currentSpeciesIndex];
+			currentCreatureTime = 0;
+			creature.reset();
+
+		}
 
 		requestAnimationFrame(animate)
 	}
