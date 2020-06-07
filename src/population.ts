@@ -3,7 +3,7 @@ import {Ai} from "./ai";
 export class Population {
 
 	species: { ai: Ai, reward: number }[] = [];
-
+	strength: number = 1;
 
 	constructor(public size: number, public inputs: number, public outputs: number) {
 
@@ -18,17 +18,22 @@ export class Population {
 
 	populate() {
 
+
+
 		this.species.sort((a, b) => b.reward - a.reward);
 
-		for (let i = 1; i < this.size; i++) {
+		for (let i = Math.floor(this.size / 2); i < this.size; i++) {
 			this.species[i].ai = new Ai(
 				new Array(this.inputs),
 				new Array(this.outputs),
-				JSON.parse(JSON.stringify(this.species[0].ai.dna))
+				JSON.parse(JSON.stringify(this.species[0 % Math.floor(this.size / 2)].ai.dna))
 			);
 
-			this.species[i].ai.mutate(0.1);
+			this.species[i].ai.mutate(Math.random() * 0.5, this.strength);
 		}
+
+		this.strength += 0.1;
+
 
 	}
 

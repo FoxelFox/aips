@@ -21,7 +21,7 @@ export class Ai {
 				for (const input2 of this.input) {
 					neuron.inputs.push({
 						i,
-						w: Math.random() * 10
+						w: (Math.random() - 0.5) * 10
 					})
 				}
 
@@ -42,7 +42,7 @@ export class Ai {
 				for (const input of this.input) {
 					neuron.inputs.push({
 						i,
-						w: Math.random()
+						w: (Math.random() - 0.5) * 10
 					})
 				}
 
@@ -93,16 +93,19 @@ export class Ai {
 		}
 	}
 
-	mutate(rate: number) {
+	mutate(rate: number, strength: number) {
+		let w = []
 		let depth = 0;
 		for (const lvl of this.dna) {
 			// use input
 			for (const neuron of lvl) {
 
 				for (const neuronInput of neuron.inputs) {
-					if (Math.random() > rate) {
-						neuronInput.w = Math.random() * 10;
+					if (Math.random() < rate) {
+						neuronInput.w = ((Math.random() - 0.5) * 10 + neuronInput.w * (strength - 1)) / strength;
 					}
+
+					w.push(neuronInput.w.toFixed(2));
 				}
 			}
 			depth++;

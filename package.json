@@ -24,8 +24,10 @@
   "homepage": "https://github.com/FoxelFox/aips#readme",
   "devDependencies": {
     "@enable3d/ammo-physics": "^0.18.0",
+    "@types/chart.js": "^2.9.21",
     "@types/three": "^0.103.2",
     "@types/webpack": "^4.41.16",
+    "chart.js": "^2.9.3",
     "copy-webpack-plugin": "^6.0.1",
     "html-webpack-plugin": "^4.3.0",
     "three": "^0.117.1",

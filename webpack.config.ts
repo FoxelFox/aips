@@ -5,6 +5,7 @@ import CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const config: webpack.Configuration & {devServer} = {
 	entry: path.join(__dirname, '/src/main.ts'),
+	devtool: "source-map",
 	output: {
 		filename: 'main.js',
 		path: __dirname + '/dist'

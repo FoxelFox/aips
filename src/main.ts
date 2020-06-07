@@ -4,6 +4,8 @@ import { Scene, Color, PerspectiveCamera, WebGLRenderer, HemisphereLight, Ambien
 import {Ai} from "./ai";
 import {Population} from "./population";
 import {Creature} from "./creature";
+import Chart = require("chart.js");
+
 console.log('hello world')
 
 const MainScene = () => {
@@ -11,15 +13,41 @@ const MainScene = () => {
 	scene.background = new Color(0xf0f0f0)
 
 	// camera
-	const camera = new PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
+	const camera = new PerspectiveCamera(50, window.innerWidth / (window.innerHeight /2), 0.1, 1000)
 	camera.position.set(10, 10, 10)
 
 
 	// renderer
 	const renderer = new WebGLRenderer()
-	renderer.setSize(window.innerWidth, window.innerHeight)
+	renderer.setSize(window.innerWidth, window.innerHeight /2)
 	renderer.shadowMap.enabled = true;
 	document.body.appendChild(renderer.domElement)
+
+	const chartCanvas = document.createElement("canvas");
+	const chartCTX = chartCanvas.getContext("2d");
+	document.body.appendChild(chartCanvas)
+
+	var chart = new Chart(chartCTX, {
+		// The type of chart we want to create
+		type: 'line',
+
+		// The data for our dataset
+		data: {
+			labels: [],
+			datasets: [{
+				label: 'score',
+				backgroundColor: 'rgb(255, 99, 132)',
+				borderColor: 'rgb(255, 99, 132)',
+				data: []
+			}]
+		},
+
+		// Configuration options go here
+		options: {
+			aspectRatio: window.innerWidth / (window.innerHeight /2)
+		}
+	});
+
 
 	// dpr
 	const DPR = window.devicePixelRatio
@@ -46,37 +74,51 @@ const MainScene = () => {
 
 	// physics
 	const physics = new AmmoPhysics(scene)
-	// physics.debug.enable()
-	// physics.debug.mode(4097)
+
+	//physics.debug.enable()
+	//physics.debug.mode(4097)
 
 	// extract the object factory from physics
 	// the factory will make/add object without physics
 	const { factory } = physics
 
 	// static ground
-	physics.add.ground({ width: 20, height: 20 }, {lambert: {color: '#566573'}})
+	physics.add.ground({ width: 20, height: 20, name: 'ground' }, {lambert: {color: '#566573'}})
 
 
 	const creature = new Creature(factory, physics, scene);
-	const population = new Population(10, creature.hinges.length, creature.hinges.length);
+	const population = new Population(10, creature.hinges.length * 3, creature.hinges.length);
 
 	const clock = new Clock();
 
 	const deadline = 5000;
+	const delta = 1/60 * 1000;
 	let currentCreatureTime = 0;
 	let currentSpecies = population.species[0];
 	let currentSpeciesIndex = 0;
+	let highScore = 0;
+	let gen = 0;
 
-	const animate = () => {
 
-		const delta = clock.getDelta() * 1000;
+	creature.torso.body.on.collision((o, e) => {
+
+		if (o.name === 'ground' && e === 'start') {
+			currentSpecies.reward = -4;
+			currentCreatureTime += deadline * 10;
+		}
+	})
+
+
+	setInterval(() => {
+		//const delta = clock.getDelta() * 1000;
+
 		currentCreatureTime += delta;
 
 
 		physics.update(delta) // default
 		// physics.update(16) // fixed physic steps
-		physics.updateDebugger()
-		renderer.render(scene, camera)
+		//physics.updateDebugger()
+
 
 		// update net
 		currentSpecies.ai.input[0] = creature.leftUpperLeg.rotation.x;
@@ -84,17 +126,29 @@ const MainScene = () => {
 		currentSpecies.ai.input[2] = creature.rightLowerLeg.rotation.x;
 		currentSpecies.ai.input[3] = creature.leftLowerLeg.rotation.x;
 
+		currentSpecies.ai.input[4] = creature.leftUpperLeg.rotation.y;
+		currentSpecies.ai.input[5] = creature.rightUpperLeg.rotation.y;
+		currentSpecies.ai.input[6] = creature.rightLowerLeg.rotation.y;
+		currentSpecies.ai.input[7] = creature.leftLowerLeg.rotation.y;
+
+		currentSpecies.ai.input[8] = creature.leftUpperLeg.rotation.z;
+		currentSpecies.ai.input[9] = creature.rightUpperLeg.rotation.z;
+		currentSpecies.ai.input[10] = creature.rightLowerLeg.rotation.z;
+		currentSpecies.ai.input[11] = creature.leftLowerLeg.rotation.z;
+
 		currentSpecies.ai.update();
 
 		let i = 0;
 		for (const hinge of creature.hinges) {
-			hinge.enableAngularMotor(true, currentSpecies.ai.output[i], 1)
+			hinge.enableAngularMotor(true, currentSpecies.ai.output[i], 2)
 			i++;
 		}
 
-		if (currentCreatureTime > deadline) {
+		//creature.needUpdate();
+
+		if (currentCreatureTime > deadline + creature.torso.position.z * 10000) {
 			// life is ended here
-			currentSpecies.reward = creature.torso.body.position.z;
+			currentSpecies.reward += creature.torso.position.z;
 
 
 			currentSpeciesIndex++;
@@ -102,14 +156,37 @@ const MainScene = () => {
 			if (currentSpeciesIndex >= population.species.length) {
 				currentSpeciesIndex = 0;
 				population.populate();
-				console.log(population.species[0].reward);
+
+				if (highScore < population.species[0].reward) {
+					highScore = population.species[0].reward;
+					console.log(highScore, "HIGHSCORE");
+				}
+
+				gen++;
+				console.log(population.species[0].reward, "Gen", gen,);
+
+				chart.data.labels.push(gen)
+				chart.data.datasets[0].data.push(population.species[0].reward);
+				chart.update();
+
+
+
 			}
 
 			currentSpecies = population.species[currentSpeciesIndex];
+			currentSpecies.reward = 0;
 			currentCreatureTime = 0;
 			creature.reset();
 
+
+
+
 		}
+	}, delta)
+
+	const animate = () => {
+
+		renderer.render(scene, camera)
 
 		requestAnimationFrame(animate)
 	}

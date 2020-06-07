@@ -22,6 +22,7 @@ export class Creature {
 	createBody() {
 		this.torso = this.factory.add.box({width: 1, height: 2, depth: 0.5, y: 4}, {lambert: {color: '#BF8069'}})
 
+
 		this.leftUpperLeg = this.factory.add.box({width: 0.25, height: 1, depth: 0.25, x: -0.25, y: 2.5}, {lambert: {color: '#D9933D'}})
 		this.leftLowerLeg = this.factory.add.box({width: 0.25, height: 1, depth: 0.25, x: -0.25, y: 1.5}, {lambert: {color: '#D99E32'}})
 
@@ -29,7 +30,7 @@ export class Creature {
 		this.rightLowerLeg = this.factory.add.box({width: 0.25, height: 1, depth: 0.25, x: 0.25, y: 1.5}, {lambert: {color: '#D99E32'}})
 
 
-		this.physics.add.existing(this.torso);
+		this.physics.add.existing(this.torso, {mass: 3});
 		this.physics.add.existing(this.leftUpperLeg);
 		this.physics.add.existing(this.leftLowerLeg);
 		this.physics.add.existing(this.rightUpperLeg);
@@ -115,24 +116,37 @@ export class Creature {
 	}
 
 	reset() {
-		for (const hinge of this.hinges) {
-			this.scene.remove(hinge)
-			this.physics.destroy(hinge);
-		}
+		this.resetObject(this.torso, 0, 4, 0);
+		this.resetObject(this.leftUpperLeg, -0.25, 2.5, 0);
+		this.resetObject(this.leftLowerLeg, -0.25, 1.5, 0);
+		this.resetObject(this.rightUpperLeg, 0.25, 2.5, 0);
+		this.resetObject(this.rightLowerLeg, 0.25, 1.5, 0);
 
-		this.hinges = []
-
-		this.scene.remove(this.torso);
-		this.scene.remove(this.leftLowerLeg);
-		this.scene.remove(this.leftUpperLeg);
-		this.scene.remove(this.rightUpperLeg);
-		this.scene.remove(this.rightLowerLeg);
-		this.physics.destroy(this.torso);
-		this.physics.destroy(this.leftUpperLeg);
-		this.physics.destroy(this.leftLowerLeg);
-		this.physics.destroy(this.rightUpperLeg);
-		this.physics.destroy(this.rightLowerLeg);
-
-		this.createBody();
 	}
+
+	resetObject(object, x, y, z) {
+		object.body.setCollisionFlags(2)
+
+		object.position.set(x,y,z)
+		object.rotation.set(0, 0,0)
+
+		object.body.needUpdate = true;
+
+		// this will run only on the next update if body.needUpdate = true
+		object.body.once.update(() => {
+			object.body.setCollisionFlags(0)
+			object.body.setVelocity(0, 0, 0)
+			object.body.setAngularVelocity(0, 0, 0)
+			//object.body.needUpdate = true;
+		})
+	}
+
+	needUpdate() {
+		this.torso.body.needUpdate = true
+		this.leftUpperLeg.body.needUpdate = true
+		this.leftLowerLeg.body.needUpdate = true
+		this.rightUpperLeg.body.needUpdate = true
+		this.rightLowerLeg.body.needUpdate = true
+	}
+
 }
