@@ -34,6 +34,11 @@ export class Population {
 
 		this.strength += 0.1;
 
+		if (this.strength > 20) {
+			this.strength = 20;
+		}
+
+
 
 	}
 

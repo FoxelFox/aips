@@ -7,7 +7,7 @@ export class Ai {
 	) {
 
 		if (!this.dna) {
-			this.dna = [[],[]];
+			this.dna = [[],[],[]];
 
 
 			// neuron per input
@@ -31,6 +31,26 @@ export class Ai {
 				i++;
 			}
 
+			for (const input of this.input) {
+				const neuron = {
+					inputs: [],
+					output: 0
+				}
+
+				let i = 0;
+				for (const input2 of this.input) {
+					neuron.inputs.push({
+						i,
+						w: (Math.random() - 0.5) * 10
+					})
+				}
+
+
+
+				this.dna[1].push(neuron);
+				i++;
+			}
+
 			// neuron per output
 			for (const output of this.output) {
 				const neuron = {
@@ -48,7 +68,7 @@ export class Ai {
 
 
 
-				this.dna[1].push(neuron);
+				this.dna[2].push(neuron);
 				i++;
 			}
 		}

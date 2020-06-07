@@ -12,6 +12,8 @@ const MainScene = () => {
 	const scene = new Scene()
 	scene.background = new Color(0xf0f0f0)
 
+	document.getElementsByTagName("body")[0].setAttribute("style", "margin: 0")
+
 	// camera
 	const camera = new PerspectiveCamera(50, window.innerWidth / (window.innerHeight /2), 0.1, 1000)
 	camera.position.set(10, 10, 10)
@@ -87,7 +89,7 @@ const MainScene = () => {
 
 
 	const creature = new Creature(factory, physics, scene);
-	const population = new Population(10, creature.hinges.length * 3, creature.hinges.length);
+	const population = new Population(10, 5 * 3 +2, creature.hinges.length);
 
 	const clock = new Clock();
 
@@ -121,28 +123,37 @@ const MainScene = () => {
 
 
 		// update net
-		currentSpecies.ai.input[0] = creature.leftUpperLeg.rotation.x;
-		currentSpecies.ai.input[1] = creature.rightUpperLeg.rotation.x;
-		currentSpecies.ai.input[2] = creature.rightLowerLeg.rotation.x;
-		currentSpecies.ai.input[3] = creature.leftLowerLeg.rotation.x;
+		let j = 0;
+		currentSpecies.ai.input[j++] = creature.leftUpperLeg.rotation.x;
+		currentSpecies.ai.input[j++] = creature.rightUpperLeg.rotation.x;
+		currentSpecies.ai.input[j++] = creature.rightLowerLeg.rotation.x;
+		currentSpecies.ai.input[j++] = creature.leftLowerLeg.rotation.x;
+		currentSpecies.ai.input[j++] = creature.torso.rotation.x;
 
-		currentSpecies.ai.input[4] = creature.leftUpperLeg.rotation.y;
-		currentSpecies.ai.input[5] = creature.rightUpperLeg.rotation.y;
-		currentSpecies.ai.input[6] = creature.rightLowerLeg.rotation.y;
-		currentSpecies.ai.input[7] = creature.leftLowerLeg.rotation.y;
+		currentSpecies.ai.input[j++] = creature.leftUpperLeg.rotation.y;
+		currentSpecies.ai.input[j++] = creature.rightUpperLeg.rotation.y;
+		currentSpecies.ai.input[j++] = creature.rightLowerLeg.rotation.y;
+		currentSpecies.ai.input[j++] = creature.leftLowerLeg.rotation.y;
+		currentSpecies.ai.input[j++] = creature.torso.rotation.y;
 
-		currentSpecies.ai.input[8] = creature.leftUpperLeg.rotation.z;
-		currentSpecies.ai.input[9] = creature.rightUpperLeg.rotation.z;
-		currentSpecies.ai.input[10] = creature.rightLowerLeg.rotation.z;
-		currentSpecies.ai.input[11] = creature.leftLowerLeg.rotation.z;
+		currentSpecies.ai.input[j++] = creature.leftUpperLeg.rotation.z;
+		currentSpecies.ai.input[j++] = creature.rightUpperLeg.rotation.z;
+		currentSpecies.ai.input[j++] = creature.rightLowerLeg.rotation.z;
+		currentSpecies.ai.input[j++] = creature.leftLowerLeg.rotation.z;
+		currentSpecies.ai.input[j++] = creature.torso.rotation.z;
+
+		currentSpecies.ai.input[j++] = creature.torso.position.y;
+		currentSpecies.ai.input[j++] = creature.torso.position.x;
 
 		currentSpecies.ai.update();
 
 		let i = 0;
 		for (const hinge of creature.hinges) {
-			hinge.enableAngularMotor(true, currentSpecies.ai.output[i], 2)
+			hinge.enableAngularMotor(true, currentSpecies.ai.output[i], 1)
+			//hinge.setAngularOnly(currentSpecies.ai.output[i])
 			i++;
 		}
+
 
 		//creature.needUpdate();
 
