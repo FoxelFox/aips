@@ -20,7 +20,7 @@ export class Population {
 
 
 
-		this.species.sort((a, b) => b.reward - a.reward);
+		this.species= this.species.sort((a, b) => b.reward - a.reward);
 
 		for (let i = Math.floor(this.size / 2); i < this.size; i++) {
 			this.species[i].ai = new Ai(
@@ -29,7 +29,7 @@ export class Population {
 				JSON.parse(JSON.stringify(this.species[0 % Math.floor(this.size / 2)].ai.dna))
 			);
 
-			this.species[i].ai.mutate(Math.random() * 0.5, this.strength);
+			this.species[i].ai.mutate(Math.random() * 0.5, this.species[i].reward);
 		}
 
 		this.strength += 0.1;

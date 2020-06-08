@@ -9,6 +9,11 @@ export class Creature {
 	leftLowerLeg
 	rightUpperLeg
 	rightLowerLeg
+	rightUpperArm
+	rightLowerArm
+	leftUpperArm
+	leftLowerArm
+	head
 	hinges = [];
 
 	constructor(
@@ -29,11 +34,33 @@ export class Creature {
 		this.rightLowerLeg = this.factory.add.box({width: 0.25, height: 1, depth: 0.25, x: 0.25, y: 1.5}, {lambert: {color: '#D99E32'}})
 
 
-		this.physics.add.existing(this.torso, {mass: 5});
-		this.physics.add.existing(this.leftUpperLeg, {mass: 1});
-		this.physics.add.existing(this.leftLowerLeg, {mass: 1});
-		this.physics.add.existing(this.rightUpperLeg, {mass: 1});
-		this.physics.add.existing(this.rightLowerLeg, {mass: 1});
+		this.rightUpperArm = this.factory.add.box({width: 0.25, height: 1, depth: 0.25, x: 0.75, y: 4.5}, {lambert: {color: '#D9933D'}})
+		this.rightLowerArm = this.factory.add.box({width: 0.25, height: 1, depth: 0.25, x: 0.75, y: 3.5}, {lambert: {color: '#D9933D'}})
+
+		this.leftUpperArm = this.factory.add.box({width: 0.25, height: 1, depth: 0.25, x: -0.75, y: 4.5}, {lambert: {color: '#D9933D'}})
+		this.leftLowerArm = this.factory.add.box({width: 0.25, height: 1, depth: 0.25, x: -0.75, y: 3.5}, {lambert: {color: '#D9933D'}})
+
+		this.head = this.factory.add.box({width: 0.5, height: 0.5, depth: 0.5, x: 0, y: 5.1}, {lambert: {color: '#D9933D'}})
+
+
+		this.physics.add.existing(this.torso, {mass: 50});
+		this.physics.add.existing(this.leftUpperLeg, {mass: 10});
+		this.physics.add.existing(this.leftLowerLeg, {mass: 10});
+		this.physics.add.existing(this.rightUpperLeg, {mass: 10});
+		this.physics.add.existing(this.rightLowerLeg, {mass: 10});
+
+		this.physics.add.existing(this.rightUpperArm, {mass: 5});
+		this.physics.add.existing(this.rightLowerArm, {mass: 5});
+
+		this.physics.add.existing(this.leftUpperArm, {mass: 5});
+		this.physics.add.existing(this.leftLowerArm, {mass: 5});
+		this.physics.add.existing(this.head, {mass: 5});
+
+
+		this.rightLowerLeg.body.setFriction(100);
+		this.leftLowerLeg.body.setFriction(100);
+		this.rightLowerArm.body.setFriction(100);
+		this.leftLowerArm.body.setFriction(100);
 
 
 		this.hinges.push(this.physics.add.constraints.hinge(
@@ -63,7 +90,7 @@ export class Creature {
 					y: -0.6
 				},
 				pivotB: {
-					y: 0.6
+					y: 0.55
 				},
 				axisA: {
 					x: 1
@@ -83,7 +110,7 @@ export class Creature {
 				},
 				pivotB: {
 					x: 0.0,
-					y: 0.6
+					y: 0.55
 				},
 				axisA: {
 					x: 1
@@ -98,10 +125,111 @@ export class Creature {
 			this.rightUpperLeg.body,
 			this.rightLowerLeg.body, {
 				pivotA: {
-					y: -0.6
+					y: -0.55
 				},
 				pivotB: {
-					y: 0.6
+					y: 0.55
+				},
+				axisA: {
+					x: 1
+				},
+				axisB: {
+					x: 1
+				}
+			}
+		));
+
+		this.hinges.push(this.physics.add.constraints.hinge(
+			this.torso.body,
+			this.rightUpperArm.body, {
+				pivotA: {
+					x: 0.75,
+					y: 0.75
+				},
+				pivotB: {
+					x: 0.0,
+					y: 0.25
+				},
+				axisA: {
+					x: 1
+				},
+				axisB: {
+					x: 1
+				}
+			}
+		));
+
+		this.hinges.push(this.physics.add.constraints.hinge(
+			this.rightUpperArm.body,
+			this.rightLowerArm.body, {
+				pivotA: {
+					x: 0.0,
+					y: -0.55
+				},
+				pivotB: {
+					x: 0.0,
+					y: 0.55
+				},
+				axisA: {
+					x: 1
+				},
+				axisB: {
+					x: 1
+				}
+			}
+		));
+
+
+		this.hinges.push(this.physics.add.constraints.hinge(
+			this.torso.body,
+			this.leftUpperArm.body, {
+				pivotA: {
+					x: -0.75,
+					y: 0.75
+				},
+				pivotB: {
+					x: 0.0,
+					y: 0.25
+				},
+				axisA: {
+					x: 1
+				},
+				axisB: {
+					x: 1
+				}
+			}
+		));
+
+		this.hinges.push(this.physics.add.constraints.hinge(
+			this.leftUpperArm.body,
+			this.leftLowerArm.body, {
+				pivotA: {
+					x: 0,
+					y: -0.55
+				},
+				pivotB: {
+					x: 0.0,
+					y: 0.55
+				},
+				axisA: {
+					x: 1
+				},
+				axisB: {
+					x: 1
+				}
+			}
+		));
+
+		this.hinges.push(this.physics.add.constraints.hinge(
+			this.torso.body,
+			this.head.body, {
+				pivotA: {
+					x: 0,
+					y: 1.3
+				},
+				pivotB: {
+					x: 0.0,
+					y: 0
 				},
 				axisA: {
 					x: 1
@@ -119,6 +247,15 @@ export class Creature {
 		this.resetObject(this.leftLowerLeg, -0.25, 1.5, 0);
 		this.resetObject(this.rightUpperLeg, 0.25, 2.5, 0);
 		this.resetObject(this.rightLowerLeg, 0.25, 1.5, 0);
+
+
+		this.resetObject(this.rightUpperArm, 0.75, 4.5, 0);
+		this.resetObject(this.rightLowerArm, 0.75, 3.5, 0);
+		this.resetObject(this.leftUpperArm, -0.75, 4.5, 0);
+		this.resetObject(this.leftLowerArm, -0.75, 3.5, 0);
+
+		this.resetObject(this.head, 0, 5.1, 0);
+
 
 	}
 
@@ -153,12 +290,5 @@ export class Creature {
 		//this.physics.update(16)
 	}
 
-	needUpdate() {
-		this.torso.body.needUpdate = true
-		this.leftUpperLeg.body.needUpdate = true
-		this.leftLowerLeg.body.needUpdate = true
-		this.rightUpperLeg.body.needUpdate = true
-		this.rightLowerLeg.body.needUpdate = true
-	}
 
 }
