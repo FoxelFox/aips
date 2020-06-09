@@ -5,14 +5,17 @@ export class Population {
 	species: { ai: Ai, reward: number }[] = [];
 	strength: number = 1;
 
-	constructor(public size: number, public inputs: number, public outputs: number) {
+	constructor(public size: number, public inputs: number, public outputs: number, dna?) {
 
 		// create random population
 		for (let i = 0; i < size; i++) {
 			this.species.push({
-				ai: new Ai(new Array(inputs), new Array(outputs)),
+				ai: new Ai(new Array(inputs), new Array(outputs), dna),
 				reward: 0
 			})
+			if (i > 0 && dna) {
+				this.species[i].ai.mutate(Math.random() * 0.5, 10);
+			}
 		}
 	}
 

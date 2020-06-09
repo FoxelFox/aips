@@ -1,12 +1,13 @@
 import {AmmoPhysics, ExtendedObject3D, PhysicsLoader} from "@enable3d/ammo-physics/dist";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
-import { Scene, Color, PerspectiveCamera, WebGLRenderer, HemisphereLight, AmbientLight, DirectionalLight, BoxBufferGeometry, MeshLambertMaterial, Mesh, SphereBufferGeometry, Clock, Vector3 } from "three";
+import { Scene, Color, PerspectiveCamera, WebGLRenderer, HemisphereLight, AmbientLight, DirectionalLight, BoxBufferGeometry, MeshLambertMaterial, Mesh, SphereBufferGeometry, Clock, Vector3, MeshBasicMaterial } from "three";
 import {Ai} from "./ai";
 import {Population} from "./population";
 import {Creature} from "./creature";
 import Chart = require("chart.js");
 
 console.log('hello world')
+
 
 const MainScene = () => {
 	const scene = new Scene()
@@ -20,7 +21,7 @@ const MainScene = () => {
 
 
 	// renderer
-	const renderer = new WebGLRenderer()
+	const renderer = new WebGLRenderer({antialias: true})
 	renderer.setSize(window.innerWidth, window.innerHeight /2)
 	renderer.shadowMap.enabled = true;
 	document.body.appendChild(renderer.domElement)
@@ -29,18 +30,34 @@ const MainScene = () => {
 	const chartCTX = chartCanvas.getContext("2d");
 	document.body.appendChild(chartCanvas)
 
+
+	const chartStorage = localStorage.getItem('chart');
+	let chartData;
+
+	if (chartStorage) {
+		chartData = JSON.parse(chartStorage);
+	} else {
+		chartData = {
+			labels: [],
+			data: []
+		}
+	}
+
+	Chart.defaults.global.elements.point.radius = chartData.labels.length > 50 ? 0 : 3;
+	Chart.defaults.global.elements.line.tension = chartData.labels.length > 50 ? 0 : 0.4;
+
 	var chart = new Chart(chartCTX, {
 		// The type of chart we want to create
 		type: 'line',
 
 		// The data for our dataset
 		data: {
-			labels: [],
+			labels: chartData.labels,
 			datasets: [{
 				label: 'score',
 				backgroundColor: 'rgb(255, 99, 132)',
 				borderColor: 'rgb(255, 99, 132)',
-				data: []
+				data: chartData.data
 			}]
 		},
 
@@ -90,9 +107,14 @@ const MainScene = () => {
 		{lambert: {color: '#566573'}}
 	);
 
+	const geo = new BoxBufferGeometry(200, 1.01, 200, 50, undefined, 50 )
+	const mat = new MeshBasicMaterial({wireframe: true, wireframeLinewidth: 4, wireframeLinecap: 'round', wireframeLinejoin: "round", transparent: true, opacity: 0.5, color: 0xFFEEEEEE});
+	scene.add(new Mesh(geo, mat));
 
+
+	const dna = localStorage.getItem('dna');
 	const creature = new Creature(factory, physics, scene);
-	const population = new Population(100, 19 * 3 +2, creature.hinges.length);
+	const population = new Population(10, 19 * 3 +3, creature.hinges.length, dna ? JSON.parse(dna) : undefined);
 
 	const clock = new Clock();
 
@@ -102,14 +124,14 @@ const MainScene = () => {
 	let currentSpecies = population.species[0];
 	let currentSpeciesIndex = 0;
 	let highScore = 0;
-	let gen = 0;
+	let gen = chartData.labels.length;
 
 
 	creature.torso.body.on.collision((o, e) => {
 
 		if (o.name === 'ground' && e === 'start') {
 			//currentSpecies.reward = -4;
-			currentCreatureTime += deadline * 10;
+			//currentCreatureTime += deadline * 10;
 		}
 	})
 
@@ -205,12 +227,15 @@ const MainScene = () => {
 
 		currentSpecies.ai.input[j++] = creature.torso.position.y;
 		currentSpecies.ai.input[j++] = creature.torso.position.x;
+		currentSpecies.ai.input[j++] = currentCreatureTime % 1000;
+
+
 
 		currentSpecies.ai.update();
 
 		let i = 0;
 		for (const hinge of creature.hinges) {
-			hinge.enableAngularMotor(true, currentSpecies.ai.output[i], 2)
+			hinge.enableAngularMotor(true, currentSpecies.ai.output[i], 5)
 			//hinge.setAngularOnly(currentSpecies.ai.output[i])
 			i++;
 		}
@@ -218,7 +243,7 @@ const MainScene = () => {
 
 		//creature.needUpdate();
 
-		if (currentCreatureTime > deadline + creature.torso.position.z * 10000) {
+		if (currentCreatureTime > deadline + creature.torso.position.z * 1000) {
 			// life is ended here
 			currentSpecies.reward = creature.torso.position.z;
 
@@ -235,10 +260,20 @@ const MainScene = () => {
 				}
 
 				gen++;
-				console.log(population.species[0].reward, "Gen", gen,);
+				console.log(population.species[0].reward, "Gen", gen);
 
-				chart.data.labels.push(gen)
-				chart.data.datasets[0].data.push(population.species[0].reward);
+
+				chartData.labels.push(gen)
+				chartData.data.push(population.species[0].reward);
+
+
+				localStorage.setItem('chart', JSON.stringify(chartData));
+				localStorage.setItem('dna', JSON.stringify(population.species[0].ai.dna));
+
+
+				Chart.defaults.global.elements.point.radius = chartData.labels.length > 50 ? 0 : 3;
+				Chart.defaults.global.elements.line.tension = chartData.labels.length > 50 ? 0 : 0.4;
+
 				chart.update();
 
 
@@ -263,5 +298,8 @@ const MainScene = () => {
 		requestAnimationFrame(animate)
 	}
 	requestAnimationFrame(animate)
+
+
+
 }
 PhysicsLoader('lib', () => MainScene())

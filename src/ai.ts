@@ -23,12 +23,12 @@ export class Ai {
 						i,
 						w: (Math.random() - 0.5)
 					})
+					i++;
 				}
 
 
 
 				this.dna[0].push(neuron);
-				i++;
 			}
 
 			for (const input of this.input) {
@@ -43,12 +43,12 @@ export class Ai {
 						i,
 						w: (Math.random() - 0.5)
 					})
+					i++;
 				}
 
 
 
 				this.dna[1].push(neuron);
-				i++;
 			}
 
 			for (const input of this.input) {
@@ -63,12 +63,12 @@ export class Ai {
 						i,
 						w: (Math.random() - 0.5)
 					})
+					i++;
 				}
 
 
 
 				this.dna[2].push(neuron);
-				i++;
 			}
 
 			// neuron per output
@@ -84,12 +84,12 @@ export class Ai {
 						i,
 						w: (Math.random() - 0.5)
 					})
+					i++;
 				}
 
 
 
 				this.dna[3].push(neuron);
-				i++;
 			}
 		}
 
