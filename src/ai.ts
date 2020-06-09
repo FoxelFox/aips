@@ -21,7 +21,7 @@ export class Ai {
 				for (const input2 of this.input) {
 					neuron.inputs.push({
 						i,
-						w: (Math.random() - 0.5) * 10
+						w: (Math.random() - 0.5)
 					})
 				}
 
@@ -41,7 +41,7 @@ export class Ai {
 				for (const input2 of this.input) {
 					neuron.inputs.push({
 						i,
-						w: (Math.random() - 0.5) * 10
+						w: (Math.random() - 0.5)
 					})
 				}
 
@@ -61,7 +61,7 @@ export class Ai {
 				for (const input2 of this.input) {
 					neuron.inputs.push({
 						i,
-						w: (Math.random() - 0.5) * 10
+						w: (Math.random() - 0.5)
 					})
 				}
 
@@ -82,7 +82,7 @@ export class Ai {
 				for (const input of this.input) {
 					neuron.inputs.push({
 						i,
-						w: (Math.random() - 0.5) * 10
+						w: (Math.random() - 0.5)
 					})
 				}
 
@@ -142,7 +142,7 @@ export class Ai {
 
 				for (const neuronInput of neuron.inputs) {
 					if (Math.random() < rate) {
-						neuronInput.w = ((Math.random() - 0.5) * 10 + neuronInput.w * (strength - 1)) / strength;
+						neuronInput.w = ((Math.random() - 0.5) + neuronInput.w * (strength - 1)) / strength;
 					}
 
 					w.push(neuronInput.w.toFixed(2));

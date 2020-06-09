@@ -40,7 +40,7 @@ export class Creature {
 		this.leftUpperArm = this.factory.add.box({width: 0.25, height: 1, depth: 0.25, x: -0.75, y: 4.5}, {lambert: {color: '#D9933D'}})
 		this.leftLowerArm = this.factory.add.box({width: 0.25, height: 1, depth: 0.25, x: -0.75, y: 3.5}, {lambert: {color: '#D9933D'}})
 
-		this.head = this.factory.add.box({width: 0.5, height: 0.5, depth: 0.5, x: 0, y: 5.1}, {lambert: {color: '#D9933D'}})
+		this.head = this.factory.add.box({width: 0.5, height: 0.5, depth: 0.5, x: 0, y: 5.3}, {lambert: {color: '#D9933D'}})
 
 
 		this.physics.add.existing(this.torso, {mass: 50});
@@ -72,7 +72,7 @@ export class Creature {
 				},
 				pivotB: {
 					x: 0.0,
-					y: 0.6
+					y: 0.55
 				},
 				axisA: {
 					x: 1
@@ -87,7 +87,7 @@ export class Creature {
 			this.leftUpperLeg.body,
 			this.leftLowerLeg.body, {
 				pivotA: {
-					y: -0.6
+					y: -0.55
 				},
 				pivotB: {
 					y: 0.55

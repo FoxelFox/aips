@@ -92,7 +92,7 @@ const MainScene = () => {
 
 
 	const creature = new Creature(factory, physics, scene);
-	const population = new Population(10, 19 * 3 +2, creature.hinges.length);
+	const population = new Population(100, 19 * 3 +2, creature.hinges.length);
 
 	const clock = new Clock();
 
