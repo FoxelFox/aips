@@ -108,7 +108,7 @@ export class Ai {
 					}
 
 					// use a cool activation function later
-					neuron.output = sum;
+					neuron.output = Math.tanh(sum);
 				}
 			} else {
 				let n = 0;
@@ -120,11 +120,11 @@ export class Ai {
 					}
 
 					// use a cool activation function later
-					neuron.output = sum;
+					neuron.output = Math.tanh(sum);
 
 					if (depth === this.dna.length -1) {
 						// write neuronOutput to ai output
-						this.output[n] = neuron.output;
+						this.output[n] = neuron.output * 10;
 					}
 					n++;
 				}

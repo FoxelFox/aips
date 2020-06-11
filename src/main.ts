@@ -103,11 +103,11 @@ const MainScene = () => {
 
 	// static ground
 	physics.add.ground(
-		{ width: 200, height: 200, name: 'ground' },
+		{ width: 200, height: 200, name: 'ground', y: -0.1},
 		{lambert: {color: '#566573'}}
 	);
 
-	const geo = new BoxBufferGeometry(200, 1.01, 200, 50, undefined, 50 )
+	const geo = new BoxBufferGeometry(200, 0.91, 200, 50, undefined, 50 )
 	const mat = new MeshBasicMaterial({wireframe: true, wireframeLinewidth: 4, wireframeLinecap: 'round', wireframeLinejoin: "round", transparent: true, opacity: 0.5, color: 0xFFEEEEEE});
 	scene.add(new Mesh(geo, mat));
 
@@ -125,6 +125,8 @@ const MainScene = () => {
 	let currentSpeciesIndex = 0;
 	let highScore = 0;
 	let gen = chartData.labels.length;
+	let accumulatedVelocity = 0;
+	let ticks = 0
 
 
 	creature.torso.body.on.collision((o, e) => {
@@ -240,13 +242,12 @@ const MainScene = () => {
 			i++;
 		}
 
-
-		//creature.needUpdate();
+		ticks++;
+		accumulatedVelocity += creature.torso.body.velocity.z
 
 		if (currentCreatureTime > deadline + creature.torso.position.z * 1000) {
 			// life is ended here
-			currentSpecies.reward = creature.torso.position.z;
-
+			currentSpecies.reward = accumulatedVelocity / ticks + (creature.head.body.position.y - 4);
 
 			currentSpeciesIndex++;
 
@@ -271,9 +272,6 @@ const MainScene = () => {
 				localStorage.setItem('dna', JSON.stringify(population.species[0].ai.dna));
 
 
-				Chart.defaults.global.elements.point.radius = chartData.labels.length > 50 ? 0 : 3;
-				Chart.defaults.global.elements.line.tension = chartData.labels.length > 50 ? 0 : 0.4;
-
 				chart.update();
 
 
@@ -281,8 +279,11 @@ const MainScene = () => {
 			}
 
 			currentSpecies = population.species[currentSpeciesIndex];
+
 			//currentSpecies.reward = 0;
 			currentCreatureTime = 0;
+			ticks = 0;
+			accumulatedVelocity = 0;
 			creature.reset();
 
 
