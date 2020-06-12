@@ -114,7 +114,7 @@ const MainScene = () => {
 
 	const dna = localStorage.getItem('dna');
 	const creature = new Creature(factory, physics, scene);
-	const population = new Population(10, 19 * 3 +3, creature.hinges.length, dna ? JSON.parse(dna) : undefined);
+	const population = new Population(10, creature.bodies.length * 12 +3, creature.hinges.length, dna ? JSON.parse(dna) : undefined);
 
 	const clock = new Clock();
 
@@ -144,94 +144,34 @@ const MainScene = () => {
 		currentCreatureTime += delta;
 
 
-		physics.update(delta) // default
-		//physics.update(1) // fixed physic steps
-		//physics.updateDebugger()
+		physics.update(delta);
 
 
 		// update net
 		let j = 0;
-		currentSpecies.ai.input[j++] = creature.leftUpperLeg.rotation.x;
-		currentSpecies.ai.input[j++] = creature.rightUpperLeg.rotation.x;
-		currentSpecies.ai.input[j++] = creature.rightLowerLeg.rotation.x;
-		currentSpecies.ai.input[j++] = creature.leftLowerLeg.rotation.x;
-		currentSpecies.ai.input[j++] = creature.torso.rotation.x;
 
-		currentSpecies.ai.input[j++] = creature.leftUpperLeg.rotation.y;
-		currentSpecies.ai.input[j++] = creature.rightUpperLeg.rotation.y;
-		currentSpecies.ai.input[j++] = creature.rightLowerLeg.rotation.y;
-		currentSpecies.ai.input[j++] = creature.leftLowerLeg.rotation.y;
-		currentSpecies.ai.input[j++] = creature.torso.rotation.y;
+		for(const body of creature.bodies) {
+			currentSpecies.ai.input[j++] = body.position.x;
+			currentSpecies.ai.input[j++] = body.position.y;
+			currentSpecies.ai.input[j++] = body.position.z;
 
-		currentSpecies.ai.input[j++] = creature.leftUpperLeg.rotation.z;
-		currentSpecies.ai.input[j++] = creature.rightUpperLeg.rotation.z;
-		currentSpecies.ai.input[j++] = creature.rightLowerLeg.rotation.z;
-		currentSpecies.ai.input[j++] = creature.leftLowerLeg.rotation.z;
-		currentSpecies.ai.input[j++] = creature.torso.rotation.z;
+			currentSpecies.ai.input[j++] = body.rotation.x;
+			currentSpecies.ai.input[j++] = body.rotation.y;
+			currentSpecies.ai.input[j++] = body.rotation.z;
 
-		currentSpecies.ai.input[j++] = creature.torso.body.velocity.x;
-		currentSpecies.ai.input[j++] = creature.torso.body.velocity.y;
-		currentSpecies.ai.input[j++] = creature.torso.body.velocity.z;
+			currentSpecies.ai.input[j++] = body.velocity.x;
+			currentSpecies.ai.input[j++] = body.velocity.y;
+			currentSpecies.ai.input[j++] = body.velocity.z;
 
-		currentSpecies.ai.input[j++] = creature.torso.body.angularVelocity.x;
-		currentSpecies.ai.input[j++] = creature.torso.body.angularVelocity.y;
-		currentSpecies.ai.input[j++] = creature.torso.body.angularVelocity.z;
+			currentSpecies.ai.input[j++] = body.angularVelocity.x;
+			currentSpecies.ai.input[j++] = body.angularVelocity.y;
+			currentSpecies.ai.input[j++] = body.angularVelocity.z;
 
-		currentSpecies.ai.input[j++] = creature.leftUpperLeg.body.angularVelocity.x;
-		currentSpecies.ai.input[j++] = creature.leftUpperLeg.body.angularVelocity.y;
-		currentSpecies.ai.input[j++] = creature.leftUpperLeg.body.angularVelocity.z;
-
-		currentSpecies.ai.input[j++] = creature.rightUpperLeg.body.angularVelocity.x;
-		currentSpecies.ai.input[j++] = creature.rightUpperLeg.body.angularVelocity.y;
-		currentSpecies.ai.input[j++] = creature.rightUpperLeg.body.angularVelocity.z;
-
-		currentSpecies.ai.input[j++] = creature.leftLowerLeg.body.angularVelocity.x;
-		currentSpecies.ai.input[j++] = creature.leftLowerLeg.body.angularVelocity.y;
-		currentSpecies.ai.input[j++] = creature.leftLowerLeg.body.angularVelocity.z;
-
-		currentSpecies.ai.input[j++] = creature.rightLowerLeg.body.angularVelocity.x;
-		currentSpecies.ai.input[j++] = creature.rightLowerLeg.body.angularVelocity.y;
-		currentSpecies.ai.input[j++] = creature.rightLowerLeg.body.angularVelocity.z;
-
-
-		currentSpecies.ai.input[j++] = creature.leftUpperArm.rotation.x;
-		currentSpecies.ai.input[j++] = creature.rightUpperArm.rotation.x;
-		currentSpecies.ai.input[j++] = creature.rightLowerArm.rotation.x;
-		currentSpecies.ai.input[j++] = creature.leftLowerArm.rotation.x;
-
-		currentSpecies.ai.input[j++] = creature.leftUpperArm.rotation.y;
-		currentSpecies.ai.input[j++] = creature.rightUpperArm.rotation.y;
-		currentSpecies.ai.input[j++] = creature.rightLowerArm.rotation.y;
-		currentSpecies.ai.input[j++] = creature.leftLowerArm.rotation.y;
-
-
-		currentSpecies.ai.input[j++] = creature.leftUpperArm.rotation.z;
-		currentSpecies.ai.input[j++] = creature.rightUpperArm.rotation.z;
-		currentSpecies.ai.input[j++] = creature.rightLowerArm.rotation.z;
-		currentSpecies.ai.input[j++] = creature.leftLowerArm.rotation.z;
-
-		currentSpecies.ai.input[j++] = creature.leftUpperArm.body.angularVelocity.x;
-		currentSpecies.ai.input[j++] = creature.leftUpperArm.body.angularVelocity.y;
-		currentSpecies.ai.input[j++] = creature.leftUpperArm.body.angularVelocity.z;
-
-		currentSpecies.ai.input[j++] = creature.rightUpperArm.body.angularVelocity.x;
-		currentSpecies.ai.input[j++] = creature.rightUpperArm.body.angularVelocity.y;
-		currentSpecies.ai.input[j++] = creature.rightUpperArm.body.angularVelocity.z;
-
-		currentSpecies.ai.input[j++] = creature.leftLowerArm.body.angularVelocity.x;
-		currentSpecies.ai.input[j++] = creature.leftLowerArm.body.angularVelocity.y;
-		currentSpecies.ai.input[j++] = creature.leftLowerArm.body.angularVelocity.z;
-
-		currentSpecies.ai.input[j++] = creature.rightLowerArm.body.angularVelocity.x;
-		currentSpecies.ai.input[j++] = creature.rightLowerArm.body.angularVelocity.y;
-		currentSpecies.ai.input[j++] = creature.rightLowerArm.body.angularVelocity.z;
-
+		}
 
 		currentSpecies.ai.input[j++] = creature.torso.position.y;
 		currentSpecies.ai.input[j++] = creature.torso.position.x;
 		currentSpecies.ai.input[j++] = currentCreatureTime % 1000;
-
-
 
 		currentSpecies.ai.update();
 

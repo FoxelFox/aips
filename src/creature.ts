@@ -15,6 +15,7 @@ export class Creature {
 	leftLowerArm
 	head
 	hinges = [];
+	bodies = [];
 
 	constructor(
 		private factory: Factories,
@@ -62,6 +63,16 @@ export class Creature {
 		this.rightLowerArm.body.setFriction(100);
 		this.leftLowerArm.body.setFriction(100);
 
+		this.bodies.push(this.torso.body);
+		this.bodies.push(this.leftLowerArm.body);
+		this.bodies.push(this.leftLowerLeg.body);
+		this.bodies.push(this.leftUpperArm.body);
+		this.bodies.push(this.leftUpperLeg.body);
+		this.bodies.push(this.rightLowerArm.body);
+		this.bodies.push(this.rightLowerLeg.body);
+		this.bodies.push(this.rightUpperArm.body);
+		this.bodies.push(this.rightUpperLeg.body);
+		this.bodies.push(this.head.body);
 
 		this.hinges.push(this.physics.add.constraints.hinge(
 			this.torso.body,
